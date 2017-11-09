@@ -117,6 +117,15 @@ The Blockface data has the following schema:
 The schema above, as well as more information on the Blockface dataset, can be found here:  
 http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidBlockfaceMetadata.pdf
 
+### Potential Limitations
+
+So far, I have identified the following possible limitations to the data:
+
+* In late 2015 the City of Seattle began implementing demand-based parking prices. I need to research this further, but this could complicate the analysis. If the data does not capture this type of parking rate well, I may choose to only look at data from prior to the implementation of this methodology.
+* The data does not include exact location information beyond general region (e.g. Pioneer Square). I may be able to retrieve this from another data source, but it may turn out to be too difficult, in which case I will declare specific geolocation to be beyond the scope of the analysis. At present I actually do not even think my research questions (below) necessitate such fine-grained details.
+
+Other limitations may present themselves as I dive into the data.
+
 ## Research Questions
 
 The Transaction and Blockface data together afford several interesting research questions. The following sections describe the analyses I hope to conduct and the questions I hope to answer.
@@ -171,9 +180,9 @@ The City of Seattle may be interested in my findings as they relate to potential
 
 I plan to use the R programming language with the `dplyr` package and base plotting for all tasks including data import, cleaning, analysis and visualization. I plan to produce a R Notebook using RMarkdown to document each step of the research process.
 
-However, if I find that the dataset is too large for processing on my machine, I may switch to Python and leverage some parallel computing resources, such as Amazon EC2 and Redshift. In that case, I will use `Pandas` for analysis and `matplotlib` for visualization, as well as a Jupyter notebook for documenting the research process.
+However, if I find that the dataset is too large for processing on my local machine, I may switch to Python and leverage cloud storage and/or parallel computing resources, such as Amazon S3, EC2 and Redshift. In that case, I will use `Pandas` for analysis and `matplotlib` for visualization, as well as a Jupyter notebook for documenting the research process.
 
-Regardless of the technology used, the main task will involve merging the Transaction and Blockface datasets on the ElementKey field. The notebook (R or Jupyter) will support reproducibility in case others wish to duplicate or expand upon my work in the future.
+Regardless of the technology used, the main task will involve retrieving and combining the Transaction data from 2012, as well as merging the Transaction and Blockface datasets on the ElementKey field. The notebook (R or Jupyter) will support reproducibility in case others wish to duplicate or expand upon my work in the future.
 
 ## Sources
 
