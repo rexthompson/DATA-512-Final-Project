@@ -8,13 +8,17 @@
 setwd('~/Desktop/3 - DATA 512/Final Project/')
 
 # TODO: update filename below to new data file with all data
-parking_transactions <- readr::read_csv('Data/Raw/ParkingTransaction_20140303_20140305.csv')
-View(head(parking_transactions, 300))
+parking <- readr::read_csv('Data/Raw/ParkingTransaction_20140303_20140305.csv')
+blockface <- readr::read_csv('Data/Raw/Blockface.csv')
 
+View(head(parking, 300))
+View(head(blockface, 300))
 
 # need to get some information on the meters, to pair by code (see MeterCode in tsxtn data)
 
 # Analysis
 
-hist(parking_transactions$Amount)
-hist(parking_transactions$ElementKey)
+hist(parking$Amount)
+hist(parking$ElementKey)
+
+
