@@ -5,11 +5,11 @@ University of Washington, Fall 2017
 
 ## Introduction
 
-Parking is big business in Seattle. The city of Seattle grossed $37 million in parking revenue for on-street parking in 2013 alone.<sup>1</sup> Not included in that figure is revenue from off-street options such as private lots and event parking (e.g. sporting events, festivals, concerts) which are common throughout the city as well.
+Parking is big business in Seattle. The city of Seattle grossed $37 million in parking revenue for on-street parking in 2013 alone.<sup>[1](https://www.geekwire.com/2014/seattle-may-install-dynamic-pricing-parking-meters/)</sup> Not included in that figure is revenue from off-street options such as private lots and event parking (e.g. sporting events, festivals, concerts) which are common throughout the city as well.
 
-Like many major cities, Seattle collects on-street parking fees by electronic pay stations - those green, solar-powered kiosks you're surely familiar with if you've ever parked anywhere within the busier parts of the city. The Seattle Department of Transportation (SDOT) has used data from these meters for years for parking studies and reports.<sup>2</sup>
+Like many major cities, Seattle collects on-street parking fees by electronic pay stations - those green, solar-powered kiosks you're surely familiar with if you've ever parked anywhere within the busier parts of the city. The Seattle Department of Transportation (SDOT) has used data from these meters for years for parking studies and reports.<sup>[2](https://www.seattle.gov/transportation/document-library/reports-and-studies#parking)</sup>
 
-However, Seattle has set itself apart from other major cities by making this parking data public. SDOT has made meter transaction records available dating back to January 2012. By releasing the data, SDOT hopes to "encourage programmers to develop mobile or other applications that can help people make smarter decisions to find parking faster and spending (sic) less time circling, stuck in traffic."<sup>3</sup>
+However, Seattle has set itself apart from other major cities by making this parking data public. SDOT has made meter transaction records available dating back to January 2012. By releasing the data, SDOT hopes to "encourage programmers to develop mobile or other applications that can help people make smarter decisions to find parking faster and spending (sic) less time circling, stuck in traffic."<sup>[3](http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidTransactMetadata.pdf)</sup>
 
 I plan to analyze the SDOT parking data as my final project for my Human-Centered Data Science course (DATA 512) during Fall 2017 at the University of Washington. My goal is to identify and examine general parking trends, and, in the spirit of the course, investigate a few specific research questions that have a human-centered component. See [Research Questions](#research_questions) below for details.
 
@@ -117,11 +117,11 @@ The Blockface data has the following schema:
 The schema above, as well as more information on the Blockface dataset, can be found here:  
 http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidBlockfaceMetadata.pdf
 
-### Potential Limitations
+### Potential Data Limitations
 
 So far, I have identified the following possible limitations to the data:
 
-* In late 2015 the City of Seattle began implementing demand-based parking prices. I need to research this further, but this could complicate the analysis. If the data does not capture this type of parking rate well, I may choose to only look at data from prior to the implementation of this methodology.
+* In late 2015 the City of Seattle began implementing demand-based parking prices.<sup>[1](https://www.geekwire.com/2014/seattle-may-install-dynamic-pricing-parking-meters/)</sup> I need to research this further, but this could complicate the analysis. If the data does not capture this type of parking rate well, I may choose to only look at data from prior to the implementation of this methodology.
 * The data does not include exact location information beyond general region (e.g. Pioneer Square). I may be able to retrieve this from another data source, but it may turn out to be too difficult, in which case I will declare specific geolocation to be beyond the scope of the analysis. At present I actually do not even think my research questions (below) necessitate such fine-grained details.
 
 Other limitations may present themselves as I dive into the data.
@@ -150,7 +150,7 @@ My findings may be of interest to city managers, companies that operate within t
 
 ### Ill-gotten Gains
 
-A 2009 Seattle Times report revealed that some parking pay stations allowed customers to pay for parking beyond the time they were actually allowed to park on the block, as per limits specified on nearby No Parking signs. Drivers in such situations were often ticketed and towed, leading to outrage from drivers and nearby businesses alike.<sup>4</sup>
+A 2009 Seattle Times report revealed that some parking pay stations allowed customers to pay for parking beyond the time they were actually allowed to park on the block, as per limits specified on nearby No Parking signs. Drivers in such situations were often ticketed and towed, leading to outrage from drivers and nearby businesses alike.<sup>[4](https://www.seattletimes.com/seattle-news/seattles-confusing-parking-meters-pay-to-6-pm-get-towed-at-3/)</sup>
 
 This story broke in 2009 but I want to see if I can identify any areas where this may still be going on. Unfortunately I do not have vehicle impound records. But the Blockface data includes time limits for parking areas and the Transaction data has records of when/where people paid for parking and for what duration. Together, this should be enough to shed light on this potential issue.
 
