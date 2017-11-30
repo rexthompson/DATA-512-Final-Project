@@ -8,7 +8,7 @@
 setwd('~/Desktop/3 - DATA 512/Final Project/')
 
 # TODO: update filename below to new data file with all data
-parking <- readr::read_csv('Data/Raw/ParkingTransaction_20140303_20140305.csv')
+parking <- readr::read_csv('Data/Raw/Parking Transactions/ParkingTransaction_20140303_20140305.csv')
 blockface <- readr::read_csv('Data/Raw/Blockface.csv')
 
 View(head(parking, 300))
