@@ -1,0 +1,2 @@
+# move 7-day transaction files from local to S3
+aws s3 cp . s3://rext-data512-final-project/transactions/raw_7_day_files --recursive --region us-west-2

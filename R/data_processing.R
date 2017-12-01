@@ -8,7 +8,8 @@
 setwd('~/Desktop/3 - DATA 512/Final Project/')
 
 # TODO: update filename below to new data file with all data
-parking <- readr::read_csv('Data/Raw/Parking Transactions/ParkingTransaction_20140303_20140305.csv')
+parking1 <- readr::read_csv('Data/Raw/transactions/ParkingTransaction_20120115_20120121.csv')
+parking2 <- readr::read_csv('~/Downloads/ParkingTransaction.csv')
 blockface <- readr::read_csv('Data/Raw/Blockface.csv')
 
 View(head(parking, 300))
@@ -18,7 +19,7 @@ View(head(blockface, 300))
 
 # Analysis
 
-hist(parking$Amount)
-hist(parking$ElementKey)
+hist(parking1$Amount)
+hist(parking1$ElementKey)
 
 
