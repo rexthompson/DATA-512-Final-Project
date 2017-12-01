@@ -161,3 +161,5 @@ dateChecker(20170101, 20170930)
 # downloadSevenDayChunks(20170101, 20170930)
 
 # all done!!
+
+# TODO: consider adding a script to functionalize the download of the blockface data, just for code completeness
