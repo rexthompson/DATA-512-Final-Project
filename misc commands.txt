@@ -1,2 +1,12 @@
 # move 7-day transaction files from local to S3
 aws s3 cp . s3://rext-data512-final-project/transactions/raw_7_day_files --recursive --region us-west-2
+
+# move cleaned transaction data from local to S3
+aws s3 cp ParkingTransaction_20120101_20170930_cleaned.csv s3://rext-data512-final-project/transactions/ --region us-west-2
+
+# move cleaned blockface data from local to S3
+aws s3 cp Blockface_cleaned.csv s3://rext-data512-final-project/ --region us-west-2
+
+# move cleaned transaction data within S3
+aws s3 mv s3://rext-data512-final-project/transactions/ParkingTransaction_20120101_20170930_cleaned.csv s3://rext-data512-final-project/ --region us-west-2
+

@@ -2,48 +2,11 @@
 #### ----- SETUP ----- ####
 ###########################
 
+library(lubridate)
 library(readr)
 
 # set working directory
 setwd("~/Desktop/3 - DATA 512/Final Project/data/raw/")
-
-######################################
-#### ----- TRANSACTION DATA ----- ####
-######################################
-
-#### DATA IMPORT
-
-# define schema and column types
-col_types_tsxn <- readr::cols(DataId = col_integer(),
-                              MeterCode = col_integer(),
-                              TransactionId = col_integer(),
-                              TransactionDateTime = col_datetime("%m/%d/%Y %H:%M:%S"),
-                              Amount = col_double(),
-                              UserNumber = col_integer(),
-                              PaymentMean = col_character(),
-                              PaidDuration = col_integer(),
-                              ElementKey = col_integer(),
-                              TransactionYear = col_integer(),
-                              TransactionMonth = col_integer(),
-                              Vendor = col_character())
-
-# import transaction data (takes a while)
-# temp: using single file for testing. Update to combined data when ready.
-transactions <- readr::read_csv("transactions_by_week/ParkingTransaction_20120101_20120107.csv",
-                                col_types = col_types_tsxn,
-                                na="NULL")
-
-# NOTE: code above imports times as datetimes, w/ TZ = UTC. This is not true time but it is
-# NOTE: a good consistent approach. Might want to check to see if DST is being observed in data.
-# NOTE: also might need to figure out how to change this foramt for data merge, etc...
-
-#### DATA CLEANING
-
-# replace missing PaymentMean data
-transactions$PaymentMean[transactions$PaymentMean=="$record.get(\"PAYMENT_TYPE\")"] <- NA
-
-# remove rows which have totally crazy values (e.g. charges > $100 from 2012...)
-# TODO: determine "acceptable" bounds and set any bad values to NA
 
 
 ####################################
@@ -58,12 +21,12 @@ col_types_blkfc <- readr::cols(PayStationBlockfaceId = col_integer(),
                                ParkingSpaces = col_integer(),
                                PaidParkingArea = col_character(),
                                ParkingTimeLimitCategory = col_integer(),
-                               PeakHourStart1 = col_time("%H:%M:%S"),
-                               PeakHourEnd1 = col_time("%H:%M:%S"),
-                               PeakHourStart2 = col_time("%H:%M:%S"),
-                               PeakHourEnd2 = col_time("%H:%M:%S"),
-                               PeakHourStart3 = col_time("%H:%M:%S"),
-                               PeakHourEnd3 = col_time("%H:%M:%S"),
+                               PeakHourStart1 = col_character(), # col_time("%H:%M:%S")
+                               PeakHourEnd1 = col_character(), # col_time("%H:%M:%S")
+                               PeakHourStart2 = col_character(), # col_time("%H:%M:%S")
+                               PeakHourEnd2 = col_character(), # col_time("%H:%M:%S")
+                               PeakHourStart3 = col_character(), # col_time("%H:%M:%S")
+                               PeakHourEnd3 = col_character(), # col_time("%H:%M:%S")
                                PaidAreaStartTime = col_time("%H%p"),
                                PaidAreaEndTime = col_time("%H%p"),
                                EffectiveStartDate = col_date("%e-%b-%y"),
@@ -103,8 +66,8 @@ col_types_blkfc <- readr::cols(PayStationBlockfaceId = col_integer(),
                                SundayRate3 = col_double(), # none; for consistency only
                                SundayStart3 = col_integer(), # none; for consistency only
                                SundayEnd3 = col_integer(), # none; for consistency only
-                               StartTimeSunday = col_time("%H%p"), # none; for consistency only
-                               EndTimeSunday = col_time("%H%p")) # none; for consistency only
+                               StartTimeSunday = col_character(), # col_time("%H%p"), # none, for consistency only
+                               EndTimeSunday = col_time("%H%p")) # none, for consistency only
 
 # import blockface data
 blockface <- readr::read_csv("Blockface.csv",
@@ -113,115 +76,171 @@ blockface <- readr::read_csv("Blockface.csv",
 
 #### DATA CLEANING
 
-# address fact that some blockfaces don't have data for the first few days of 2012? (start 1/3/12)
-
-# set times after midnight to actual time values (and add one...?)
-
-cols_to_adjust <- c("WeekdayStart1", "WeekdayEnd1",
-                    "WeekdayStart2", "WeekdayEnd2",
-                    "WeekdayStart3","WeekdayEnd3",
-                    "SaturdayStart1", "SaturdayEnd1",
-                    "SaturdayStart2", "SaturdayEnd2",
-                    "SaturdayStart3", "SaturdayEnd3",
-                    "SundayStart1", "SundayEnd1",
-                    "SundayStart2", "SundayEnd2",
-                    "SundayStart3", "SundayEnd3")
-
-data_to_adjust <- blockface[,colnames(blockface) %in% cols_to_adjust]
-
-convertMinsToTime <- function(x) {
-  print(x/60)
+# define function to convert start and end times from minutes after midnight to HH:MM
+convertMinsToHHMM <- function(x) {
   
-  # x <- paste0(sprintf("%04d", x),"00")
+  # sanity checks
+  assertthat::assert_that(all(x>=0 | is.na(x)), msg="values must be non-negative")
+  assertthat::assert_that(all(x<=1440 | is.na(x)), msg="values must be <= 1440")
   
-  x <- lubridate::minutes(x)
+  # round to nearest minute and extract hrs and mins
+  x <- round(x,0)
+  hrs <- floor(x/60)
+  mins <- floor(x%%60)
   
-  # as.POSIXct(lubridate::minutes(340))
+  # convert to hh and mm
+  hrs_hh <- sapply(hrs, sprintf, fmt="%02.f")
+  mins_mm <- sapply(mins, sprintf, fmt="%02.f")
   
-  # format(330, "%H%M")
+  # paste data together and replace NAs
+  pasted_vals <- paste0(hrs_hh, ":", mins_mm, ":00")
+  pasted_vals[pasted_vals=="NA:NA:00"] <- NA
   
-  # minutes(x)
-  
-  # hm(x)
-  
-  return(x)
-  
+  # convert back to dataframe
+  hhmm <- data.frame(matrix(pasted_vals, nrow = nrow(x)), stringsAsFactors = FALSE)
+  return(hhmm)
 }
 
-convertMinsToTime(480)
+# set columns to adjust
+starttimes <- c("WeekdayStart1", "WeekdayStart2", "WeekdayStart3",
+                "SaturdayStart1", "SaturdayStart2", "SaturdayStart3",
+                "SundayStart1", "SundayStart2", "SundayStart3")
 
-blockface[,colnames(blockface) %in% cols_to_adjust] <- data_to_adjust*3000
+endtimes <- c("WeekdayEnd1", "WeekdayEnd2", "WeekdayEnd3",
+              "SaturdayEnd1","SaturdayEnd2", "SaturdayEnd3",
+              "SundayEnd1", "SundayEnd2", "SundayEnd3")
 
+# adjust start times
+columns_to_adjust <- colnames(blockface) %in% starttimes
+blockface[,columns_to_adjust] <- convertMinsToHHMM(blockface[,columns_to_adjust])
 
+# adjust end times (add a minute to periods are inclusive)
+columns_to_adjust <- colnames(blockface) %in% endtimes
+blockface[,columns_to_adjust] <- apply(blockface[,columns_to_adjust], 2, function(x) ifelse(x > 0, x+1, x))
+blockface[,columns_to_adjust] <- convertMinsToHHMM(blockface[,columns_to_adjust])
 
+# adjust effective end date (to simplify merging later)
+blockface$EffectiveEndDate <- blockface$EffectiveEndDate + days(1)
 
+# convert date columns to text for easier python import, and strip NAs
+cols_to_reformat <- c("StartTimeWeekday", "EndTimeWeekday", "StartTimeSaturday", "EndTimeSaturday")
 
-
-
-
-
-
-
-
-##############################
-###### EDA FOR CLEANING ######
-##############################
-
-# find outrageous prices
-high_prices <- transactions[transactions$Amount > 5, ]
-
-hist(transactions$TransactionDateTime, breaks = "days", start.on.monday = FALSE)
-
-
-tmp <- read_csv("transactions_by_week/ParkingTransaction_20120617_20120623.csv",
-                col_types = col_types_tsxn,
-                na="NULL")
-
-tmp2 <- read_csv("transactions_by_week/ParkingTransaction_20120115_20120121.csv",
-                 col_types = col_types_tsxn,
-                 na="NULL")
-
-
-hist(tmp$TransactionDateTime, breaks = "hours", freq=TRUE)
-hist(tmp2$TransactionDateTime, breaks = "hours", freq=TRUE)
-
-hist(tmp2$TransactionDateTime[lubridate::date(tmp2$TransactionDateTime)=="2012-01-17"], breaks="hours")
-
-
-##################################
-###### CLEANING STEPS!!!!!! ######
-##################################
-
-
-
-
-list.files()
-
-
-headers <- readr::read_csv("headers.csv", col_names = FALSE)
-
-dim(headers)
-View(headers)
-
-
-
-
-# identify import errors by file (check column type consistency)
-
-setwd("~/Desktop/3 - DATA 512/Final Project/data/raw/")
-
-i <- 0
-for (f in list.files("transactions_by_week/")) {
-  i <- i+1
-  print(paste0(i, ": ", f))
-  temp <- readr::read_csv(paste0("transactions_by_week/", f),
-                          col_types = col_types,
-                          na="NULL")
+for (col in cols_to_reformat) {
+  new_col <- data.frame(sapply(blockface[,col], as.character), stringsAsFactors = FALSE)
+  new_col[new_col=="NA"] <- NA
+  blockface[,col] <- new_col
 }
 
+# drop columns that have no (useful) data
+cols_to_drop <- c("PeakHourStart3","PeakHourEnd3",
+                  "SundayStart1", "SundayStart2", "SundayStart3",
+                  "SundayEnd1", "SundayEnd2", "SundayEnd3",
+                  "SundayRate1", "SundayRate2", "SundayRate3",
+                  "StartTimeSunday", "EndTimeSunday")
+cols_to_drop <- colnames(blockface) %in% cols_to_drop
+# unique(blockface[,cols_to_drop])
+blockface <- blockface[,!cols_to_drop]
+
+# write cleaned data to new .csv file
+# write_csv(blockface, "Blockface_cleaned.csv", na = "")
 
 
+######################################
+#### ----- TRANSACTION DATA ----- ####
+######################################
 
+#### DATA IMPORT
 
+# define schema and column types
+col_types_tsxn <- readr::cols(DataId = col_integer(),
+                              MeterCode = col_integer(),
+                              TransactionId = col_integer(),
+                              TransactionDateTime = col_datetime("%m/%d/%Y %H:%M:%S"),
+                              Amount = col_double(),
+                              UserNumber = col_integer(),
+                              PaymentMean = col_character(),
+                              PaidDuration = col_integer(),
+                              ElementKey = col_integer(),
+                              TransactionYear = col_integer(),
+                              TransactionMonth = col_integer(),
+                              Vendor = col_character())
 
+# import transaction data (takes a little while)
+tsxnFilename <- "ParkingTransaction_20120101_20170930_raw.csv"
+# tsxnFilename <- "transactions_by_week/ParkingTransaction_20120429_20120505.csv" # single file for testing
+transactions <- readr::read_csv(tsxnFilename,
+                                col_types = col_types_tsxn,
+                                na="NULL")
 
+#### DATA CLEANING
+
+# replace missing PaymentMean values and convert to uppercase to eliminate inconsistencies
+transactions$PaymentMean[transactions$PaymentMean=="$record.get(\"PAYMENT_TYPE\")"] <- NA
+transactions$PaymentMean[transactions$PaymentMean=="Credit Card"] <- "CREDIT CARD"
+transactions$PaymentMean[transactions$PaymentMean=="Smart Card"] <- "SMART CARD"
+transactions$PaymentMean[transactions$PaymentMean=="Phone"] <- "PHONE"
+transactions$PaymentMean[transactions$PaymentMean=="CASH"] <- "COINS"
+
+# pull out transaction date and time
+transactions$TransactionDate <- date(transactions$TransactionDateTime)
+transactions$timeStart <- paste(sprintf("%02d", hour(transactions$TransactionDateTime)),
+                                sprintf("%02d", minute(transactions$TransactionDateTime)),
+                                sep=":")
+
+# add expired time column
+timeExpired <- transactions$TransactionDateTime + transactions$PaidDuration
+transactions$timeExpired <- paste(sprintf("%02d", hour(timeExpired)),
+                                  sprintf("%02d", minute(timeExpired)),
+                                  sep=":")
+rm(timeExpired)
+
+# NOTE: the three columns above might not be fully representative of parking times
+# NOTE: Per Fremont pay station, users can pre-pay for the next morning starting at 10pm
+
+# add columns for day of the week (to make it easier to review rates, etc.)
+# transactions$dayOfWeek <- weekdays(as.Date(transactions$TransactionDateTime), abbreviate = TRUE)
+
+# remove 43 rows with erroneous Amount values (i.e. charges > $25)
+transactions <- transactions[(is.na(transactions$Amount) | transactions$Amount<=25),]
+
+# # convert PaidDuration to minutes
+transactions$Duration_mins <- round(transactions$PaidDuration/60, 0)
+
+# remove UserNumber values != 1
+# Documentation says this value should be 1; 99.5% of records match this condition
+# NOTE: there are 12089969 records w/ UserNumber = NA; to leave these in for now
+transactions <- transactions[(is.na(transactions$UserNumber) | transactions$UserNumber==1),]
+
+# remove records w/ PaidDuration values <=0 and >600 (10 hrs max allowed)
+# Only 58 records >10 hrs; observed PaidDuration values = 11, 12 and 14 hrs
+transactions <- transactions[(is.na(transactions$PaidDuration) | 
+                                transactions$PaidDuration>0 |
+                                transactions$PaidDuration<=600),]
+
+# drop columns that have no (useful) data
+cols_to_drop <- c("DataId", # I don't think I need this for anything...
+                  "UserNumber", # all remaining values = 1 per edit above (or missing),
+                  "TransactionYear", # probably don't need this for python
+                  "TransactionMonth", # probably don't need this for python
+                  "PaidDuration",
+                  # "PaidDuration_mins",
+                  "Vendor")
+cols_to_drop <- colnames(transactions) %in% cols_to_drop
+# unique(transactions[,cols_to_drop])
+transactions <- transactions[,!cols_to_drop]
+
+# reorder remaining columns
+# newColOrder <- c("DataId", "ElementKey", "MeterCode", "TransactionId", "TransactionDateTime","Amount","PaymentMean","PaidDuration")
+newColOrder <- c("TransactionId","TransactionDateTime", "TransactionDate",
+                 "timeStart", "timeExpired", "Duration_mins",
+                 "Amount", "PaymentMean",
+                 "MeterCode", "ElementKey")
+transactions <- transactions[,newColOrder]
+
+# save cleaned file
+# write_csv(transactions, "ParkingTransaction_20120101_20170930_cleaned.csv", na="")
+
+# set.seed(228)
+# sampleTransactions <- transactions[sample(nrow(transactions),5000),]
+# write_csv(sampleTransactions, "ParkingTransaction_cleanedSAMPLE.csv", na="")
+# write_csv(sampleTransactions, "ParkingTransaction_cleanedSAMPLE.csv", na="")
