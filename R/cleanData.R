@@ -182,12 +182,14 @@ transactions$PaymentMean[transactions$PaymentMean=="Phone"] <- "PHONE"
 transactions$PaymentMean[transactions$PaymentMean=="CASH"] <- "COINS"
 
 # pull out transaction date and time
+# TODO: add seconds to this time, since this might be used when pulled back in if done in R anyway...
 transactions$TransactionDate <- date(transactions$TransactionDateTime)
 transactions$timeStart <- paste(sprintf("%02d", hour(transactions$TransactionDateTime)),
                                 sprintf("%02d", minute(transactions$TransactionDateTime)),
                                 sep=":")
 
 # add expired time column
+# TODO: add seconds to this time, since this might be used when pulled back in if done in R anyway...
 timeExpired <- transactions$TransactionDateTime + transactions$PaidDuration
 transactions$timeExpired <- paste(sprintf("%02d", hour(timeExpired)),
                                   sprintf("%02d", minute(timeExpired)),

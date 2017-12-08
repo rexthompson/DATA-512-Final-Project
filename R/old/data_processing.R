@@ -2,6 +2,9 @@
 ###### LOOK INTO PEAK TIME VIOLATIONS -- use sample merge for now ######
 ########################################################################
 
+library(dplyr)
+library(readr)
+
 setwd("~/Desktop/3 - DATA 512/Final Project/data/raw/")
 merged_raw <- read_csv("sampleMerge2.csv")
 merged <- merged_raw
