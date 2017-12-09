@@ -242,8 +242,6 @@ transactions <- transactions[,newColOrder]
 # save cleaned file
 # write_csv(transactions, "../ParkingTransaction_20120101_20170930_cleaned.csv", na="")
 
-# set.seed(228)
-# sampleTransactions <- transactions[sample(nrow(transactions),5000),]
-# sampleTransactions <- transactions[sample(nrow(transactions),50000),]
-# write_csv(sampleTransactions, "../ParkingTransaction_cleanedSAMPLE.csv", na="")
+set.seed(228)
+sampleTransactions <- transactions[sample(nrow(transactions),1000000),]
 # write_csv(sampleTransactions, "../ParkingTransaction_cleanedSAMPLE.csv", na="")
