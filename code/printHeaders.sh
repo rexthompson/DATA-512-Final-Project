@@ -3,7 +3,7 @@
 
 #!/bin/bash
 i=0                                     # file ounter
-for filename in ./transactions_by_week/ParkingTransaction_*.csv; do 
+for filename in ../data/raw/transactions_by_week/ParkingTransaction_*.csv; do 
  # echo $filename
  head -1 $filename
  i=$(( $i + 1 ))                        # Increase the counter
