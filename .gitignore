@@ -2,3 +2,5 @@
 Supplementals/*
 .DS_Store
 .Rproj.user
+data/raw/*
+.ipynb_checkpoints/*

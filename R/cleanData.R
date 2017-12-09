@@ -142,7 +142,7 @@ cols_to_drop <- colnames(blockface) %in% cols_to_drop
 blockface <- blockface[,!cols_to_drop]
 
 # write cleaned data to new .csv file
-# write_csv(blockface, "Blockface_cleaned.csv", na = "")
+write_csv(blockface, "../Blockface_cleaned.csv", na = "")
 
 
 ######################################
@@ -240,9 +240,10 @@ newColOrder <- c("TransactionId","TransactionDateTime", "TransactionDate",
 transactions <- transactions[,newColOrder]
 
 # save cleaned file
-# write_csv(transactions, "ParkingTransaction_20120101_20170930_cleaned.csv", na="")
+# write_csv(transactions, "../ParkingTransaction_20120101_20170930_cleaned.csv", na="")
 
 # set.seed(228)
 # sampleTransactions <- transactions[sample(nrow(transactions),5000),]
-# write_csv(sampleTransactions, "ParkingTransaction_cleanedSAMPLE.csv", na="")
-# write_csv(sampleTransactions, "ParkingTransaction_cleanedSAMPLE.csv", na="")
+# sampleTransactions <- transactions[sample(nrow(transactions),50000),]
+# write_csv(sampleTransactions, "../ParkingTransaction_cleanedSAMPLE.csv", na="")
+# write_csv(sampleTransactions, "../ParkingTransaction_cleanedSAMPLE.csv", na="")

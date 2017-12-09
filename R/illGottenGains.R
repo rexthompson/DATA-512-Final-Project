@@ -5,7 +5,7 @@ library(readr)
 
 # import data
 # TODO: add option to pull from S3 if data not in local files...
-baseDir <- "~/Desktop/3 - DATA 512/Final Project/data/raw/"
+baseDir <- "~/Desktop/3 - DATA 512/Final Project/data/"
 # baseDir <- "" TODO: add S3 baseUrl here
 
 # filename <- "ParkingTransaction_cleanedSAMPLE.csv"
