@@ -4,3 +4,4 @@ Supplementals/*
 .Rproj.user
 data/raw/*
 .ipynb_checkpoints/*
+data/ParkingTransaction_20120101_20170930_cleaned.csv
