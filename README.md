@@ -29,9 +29,19 @@ Also, please note that the data provider makes no guarantees "as to the complete
 
 Feel free to contact me (Rex Thompson) at rext@uw.edu if you have any questions about this analysis.
 
-## Data
+## Tools
 
-The data consists of two parts:
+I used the R programming language (Version 3.4.2) with the `dplyr` (0.7.4), `lubridate` (1.6.0) and `readr` (1.1.1) packages and base plotting for all tasks including data import, cleaning, analysis and visualization.
+
+I used a .sh script to combine the 300 raw 7-day transaction .csv files into a single large .csv file.
+
+I wrote my analysis in a Jupyter Notebook with the IRKernel to clearly document each step of the research process and support readability and reproducibility.
+
+I performed all work on a mid-2015 MacBook Pro running macOS High Sierra (Version 10.13.1).
+
+## Raw Data
+
+The raw data consists of two parts:
 
 * **Transaction data:** parking transactions from Seattle pay stations. Includes date/time, duration, payment amount and method (e.g. card, cash, mobile app), meter ID, blockface ID, etc.
 * **Blockface data:** Seattle block-level parking-related attributes. Includes paid parking times and rates, Peak Hour parking restrictions, street capacity, neighborhood, record effective dates, etc.
@@ -64,28 +74,33 @@ http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattleP
 
 ## Data Retrieval and Cleaning
 
-Data retrieval and cleaning are an important part of any project; however, I kept these steps out of the Jupyter Notebook so as to not clutter the analysis. Instead, you will find the code for these steps in this repository's [code](/code) directory.
+Data retrieval and cleaning are important parts of any project; however, I kept these steps out of the Jupyter Notebook so as to not clutter the analysis. Instead, you will find the code for these steps in this repository's [/code](/code) directory.
 
 The following includes details on these steps and instructions on how to use the data retrieval and cleaning steps if you wish to reproduce or extend my analysis.
 
 ### Data Retrieval
 
-The raw Transaction and Blockface data required some cleaning and reformatting to enable this analysis.
+At the time of this project the Transaction data API limited requests to no more than seven days at a time. Thus, I wrote a few functions in R to automate the process of downloading the Transaction data in seven-day chunks over the period of interest.
+
+The following three functions are included in [`downloadData.R`](./code/downloadData.R):
+
+* `downloadTransactions()`: Base-level function which retrieves data from the Transaction data API for a given date range (up to seven days in duration)
+* `downloadSevenDayChunks()`: Wrapper function around `downloadTransactions()` which automatically downloads data in seven-day chunks over a larger given date range
+* `dateChecker()`: Checks whether a given date interval splits evenly into seven-day chunks. This is useful when trying to figure out dates to feed to `downloadSevenDayChunks()` to minimize the number of files needed to store the data.
+
+I manually downloaded the Blockface data since it only consisted of a single, small file.
+
+### Data Cleaning
+
+#### Transaction Data
+
+
+#### Blockface Data
 
 
 
 
 
-
-## Tools
-
-I used the R programming language (Version 3.4.2) with the `dplyr` (0.7.4), `lubridate` (1.6.0) and `readr` (1.1.1) packages and base plotting for all tasks including data import, cleaning, analysis and visualization.
-
-I used a .sh script to combine the 300 raw 7-day transaction .csv files into a single large .csv file.
-
-I wrote my analysis in a Jupyter Notebook with the IRKernel to clearly document each step of the research process and support readability and reproducibility.
-
-I performed all work on a mid-2015 MacBook Pro running macOS High Sierra (Version 10.13.1).
 
 ## References
 

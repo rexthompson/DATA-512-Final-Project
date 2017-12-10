@@ -1,10 +1,6 @@
-###########################
-#### SUPPORT FUNCTIONS ####
-###########################
-
-#' @param startdate_YYYYMMDD start date for data retrieval YYYYMMDD
-#' @param enddate_YYYYMMDD end date for data retrieval YYYYMMDD
-#' @param baseDir directory to which data files should be saved
+#######################
+#### DOWNLOAD DATA ####
+#######################
 
 downloadTransactions <- function(startdate_YYYYMMDD=NULL,
                                  enddate_YYYYMMDD=NULL,
@@ -38,13 +34,7 @@ downloadTransactions <- function(startdate_YYYYMMDD=NULL,
   print(paste0("Dest File: ", destfile))
   curl::curl_download(url, destfile)
   
-  # download.file(url, destfile)
-  # status was '405 Method Not Allowed'
-  
 }
-
-# downloadTransactions(20171101, 20171102)
-
 
 downloadSevenDayChunks <- function(startdate_YYYYMMDD=NULL,
                                    enddate_YYYYMMDD=NULL,
@@ -108,58 +98,3 @@ dateChecker <- function(startdate_YYYYMMDD=NULL,
   }
   
 }
-
-######################
-#### DOWNLOAD LOG ####
-######################
-
-dateChecker(20120101, 20120116)
-# downloadSevenDayChunks(20120101, 20120116)
-# later deleted the file w/ 20120115 to 20120116 since it only covered two days
-
-dateChecker(20120115, 20130105)
-# downloadSevenDayChunks(20120115, 20130105)
-# aborted after 20120225 due to small file sizes for 20120115-20120121 and 20120122-20120128
-
-dateChecker(20120115, 20120121)
-# downloadSevenDayChunks(20120115, 20120121)
-# still the same size. Later realized this was probably due to a snow storm. See more below.
-
-dateChecker(20120122, 20120128)
-# downloadSevenDayChunks(20120122, 20120128)
-# looked more reasonable now (was previously just the headers)
-
-# all caught up now thru 20120225; gonna try this again
-dateChecker(20120226, 20130105)
-# downloadSevenDayChunks(20120226, 20130105)
-# successfully downloaded all data thru 20130105!!
-
-# now to try and run the rest, through the end of 2016...
-dateChecker(20130106, 20161231)
-# downloadSevenDayChunks(20130106, 20161231)
-# everything above worked except two files which just had their headers returned! See below.
-
-# Try again on the two that failed:
-dateChecker(20150405, 20150411)
-dateChecker(20150412, 20150418)
-# downloadTransactions(20150405, 20150411)
-# downloadTransactions(20150412, 20150418)
-
-# noticed a handful of the files had an extra @ symbol in their permissions (-rw-r--r--@)
-# thought this might be an issue with the files but upon further inspection it looks like 
-# this just corresponds to whether I have opened the file before or not. So it's OK.
-
-# So, looks like all the data downloaded successfully!! Only strange outlier is the third
-# file (20120115, 20120121) which was only 6.5 MB which I initially thought may be due to
-# some missing data but later realized it's probably small due to a big snow storm that hit
-# during that week. See the following for some background:
-# http://www.climate.washington.edu/events/2012snow/
-# http://sites.psu.edu/yangpassion/2016/09/27/january-2012-seattle-snowstorm/
-
-# decided to grab 2017Q1-Q3 as well, then I can chop out the first QTR which includes the small file
-dateChecker(20170101, 20170930)
-# downloadSevenDayChunks(20170101, 20170930)
-
-# all done!!
-
-# TODO: consider adding a script to functionalize the download of the blockface data, just for code completeness
