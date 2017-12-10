@@ -6,8 +6,6 @@ I analyze Seattle paid on-street parking data from January 2012 through Septembe
 
 Refer to [DATA-512-Final-Project.ipynb](./DATA-512-Final-Project.ipynb) for the full analysis and supporting code, as well as a discussion on the limitations of this analysis.
 
-OR: https://github.com/rexthompson/DATA-512-Final-Project/blob/master/DATA-512-Final-Project.ipynb
-
 ## Reproducibility
 
 This work is intended to be fully reproducible. This means that any user should be able to run my code and produce the exact same result as presented here. To do so, simply clone this repository by typing the following in the command line:
@@ -51,7 +49,8 @@ The Transaction data represents payments at parking pay stations and the City’
 The combined raw Transaction data is 5.21 GB in size with 62,577,106 rows and 12 columns.
 
 More information about the Transaction dataset (including its schema) can be found here:  
-http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidTransactMetadata.pdf
+http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidTransactMetadata.pdf  
+(This document is also archived [here](./data/documentation/SeattlePaidTransactMetadata.pdf))
 
 ### Blockface Data
 
@@ -60,11 +59,14 @@ The Blockface data provides context to the Transaction data, including records s
 The raw Blockface data consists of a single .csv file 3.6 MB in size, with 13,706 rows of data and 52 columns.
 
 More information about the Blockface dataset (including its schema) can be found here:  
-http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidBlockfaceMetadata.pdf
+http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidBlockfaceMetadata.pdf  
+(This document is also archived [here](./data/documentation/SeattlePaidBlockfaceMetadata.pdf))
 
 ## Data Retrieval and Cleaning
 
-In order to keep from cluttering the analysis I kept the data retrieval and cleaning separate. The code for these steps are contained in the [code](/code) directory in this repository. The following includes instructions on how to use these scripts for the sake of reproducibility.
+Data retrieval and cleaning are an important part of any project; however, I kept these steps out of the Jupyter Notebook so as to not clutter the analysis. Instead, you will find the code for these steps in this repository's [code](/code) directory.
+
+The following includes details on these steps and instructions on how to use the data retrieval and cleaning steps if you wish to reproduce or extend my analysis.
 
 ### Data Retrieval
 
