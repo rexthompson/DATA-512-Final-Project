@@ -6,7 +6,7 @@ library(lubridate)
 library(readr)
 
 # set working directory
-setwd("~/Desktop/3 - DATA 512/Final Project/data/raw/")
+setwd("~/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/")
 
 
 ####################################
@@ -215,9 +215,9 @@ transactions <- transactions[(is.na(transactions$UserNumber) | transactions$User
 
 # remove records w/ PaidDuration values <=0 and >600 (10 hrs max allowed)
 # Only 58 records >10 hrs; observed PaidDuration values = 11, 12 and 14 hrs
-transactions <- transactions[(is.na(transactions$PaidDuration) | 
-                                transactions$PaidDuration>0 |
-                                transactions$PaidDuration<=600),]
+transactions <- transactions[(is.na(transactions$Duration_mins) | 
+                                transactions$Duration_mins>0 |
+                                transactions$Duration_mins<=600),]
 
 # drop columns that have no (useful) data
 cols_to_drop <- c("DataId", # I don't think I need this for anything...
