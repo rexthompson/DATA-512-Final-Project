@@ -1,6 +1,7 @@
+# download Transaction data for up to seven days at a time
 downloadTransactions <- function(startdate_YYYYMMDD=NULL,
                                  enddate_YYYYMMDD=NULL,
-                                 baseDir="/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/") {
+                                 rawDataDir="/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/") {
   
   # set different date formats
   startdate <- lubridate::ymd(startdate_YYYYMMDD)
@@ -22,7 +23,7 @@ downloadTransactions <- function(startdate_YYYYMMDD=NULL,
   baseDestfile <- "ParkingTransaction_startdate_YYYYMMDD_enddate_YYYYMMDD.csv"
   destfile <- stringr::str_replace(baseDestfile, "startdate_YYYYMMDD", toString(startdate_YYYYMMDD))
   destfile <- stringr::str_replace(destfile, "enddate_YYYYMMDD", toString(enddate_YYYYMMDD))
-  destfile <- paste0(baseDir,destfile)
+  destfile <- paste0(rawDataDir,destfile)
     
   # retrieve data
   print(paste0("Downloading data for ", startdate, " to ", enddate))
@@ -32,9 +33,10 @@ downloadTransactions <- function(startdate_YYYYMMDD=NULL,
   
 }
 
+# download Transaction data in seven-day chunks for periods longer than seven days
 downloadSevenDayChunks <- function(startdate_YYYYMMDD=NULL,
                                    enddate_YYYYMMDD=NULL,
-                                   baseDir="/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/") {
+                                   rawDataDir="/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/") {
   
   # initial sanity check
   assertthat::assert_that(enddate_YYYYMMDD >= startdate_YYYYMMDD)
@@ -53,11 +55,12 @@ downloadSevenDayChunks <- function(startdate_YYYYMMDD=NULL,
   date_ranges <- data.frame(startdate=startdate_seq, enddate=enddate_seq)
   date_ranges <- format(date_ranges,"%Y%m%d")
   for (i in 1:nrow(date_ranges)) {
-    downloadTransactions(date_ranges[i,1], date_ranges[i,2], baseDir)
+    downloadTransactions(date_ranges[i,1], date_ranges[i,2], rawDataDir)
   }
 
 }
 
+# check if date range supports equally-sized chunks of days
 dateChecker <- function(startdate_YYYYMMDD=NULL,
                         enddate_YYYYMMDD=NULL,
                         interval=7) {
@@ -92,3 +95,12 @@ dateChecker <- function(startdate_YYYYMMDD=NULL,
   }
   
 }
+
+# #### SAMPLE CODE ####
+# 
+# startdate_YYYYMMDD <- 20120101
+# enddate_YYYYMMDD <- 20170930
+# rawDataDir <- "/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/"
+# 
+# dateChecker(startdate_YYYYMMDD, enddate_YYYYMMDD)
+# downloadSevenDayChunks(startdate_YYYYMMDD, enddate_YYYYMMDD)

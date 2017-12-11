@@ -138,6 +138,7 @@ cleanBlockface <- function(baseDir, filename_raw, filename_clean) {
 }
 
 # #### SAMPLE CODE ####
+# 
 # baseDir <- "~/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/"
 # filename_raw <- "Blockface.csv"
 # filename_clean <- "../Blockface_cleaned.csv"

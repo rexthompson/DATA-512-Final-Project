@@ -106,13 +106,19 @@ cleanTransactions <- function(baseDir, filename_raw, filename_clean, sample_n=NU
 }
 
 # #### SAMPLE CODE ####
-# baseDir <- "~/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/"
-# filename_raw <- "ParkingTransaction_20120101_20170930_raw.csv"
-# filename_raw_test <- "transactions_by_week/ParkingTransaction_20120429_20120505.csv" # single file for testing
-# filename_clean <- "../ParkingTransaction_20120101_20170930_cleaned.csv"
-# filename_clean_sample <- "../ParkingTransaction_cleanedSAMPLE.csv"
-# filename_clean_test <- "../ParkingTransaction_cleanedTESTTESTTEST.csv"
 # 
-# cleanTransactions(baseDir, filename_raw, filename_clean) # full dataset
+# baseDir <- "~/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/"
+# 
+# # full dataset; WARNING: takes a LONG time!
+# filename_raw <- "ParkingTransaction_20120101_20170930_raw.csv"
+# filename_clean <- "../ParkingTransaction_20120101_20170930_cleaned.csv"
+# cleanTransactions(baseDir, filename_raw, filename_clean)
+# 
+# # 1,000,000-row sample
+# filename_clean_sample <- "../ParkingTransaction_cleanedSAMPLE.csv"
 # cleanTransactions(baseDir, filename_raw, filename_clean_sample, 1000000, 228) # 1000000-row sample
-# # cleanTransactions(baseDir, filename_raw_test, filename_clean_test) # test
+# 
+# # # test code
+# # filename_raw_test <- "transactions_by_week/ParkingTransaction_20120429_20120505.csv" # single file for testing
+# # filename_clean_test <- "../ParkingTransaction_cleanedTESTTESTTEST.csv"
+# # cleanTransactions(baseDir, filename_raw_test, filename_clean_test)
