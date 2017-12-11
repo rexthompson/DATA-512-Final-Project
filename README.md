@@ -78,9 +78,10 @@ Data retrieval and cleaning are important parts of any project; however, I kept 
 
 The following includes details on these steps and instructions on how to use the data retrieval and cleaning steps if you wish to reproduce or extend my analysis.
 
-### Data Retrieval
 
-#### Transaction Data
+### Transaction Data
+
+#### Data Retrieval
 
 At the time of this project the Transaction data API limited requests to no more than seven days at a time. Thus, I wrote a few functions in R to automate the process of downloading the Transaction data in seven-day chunks over the period of interest.
 
@@ -92,32 +93,113 @@ The following three functions are included in [`downloadData.R`](./code/download
 
 To use this code, source [`downloadData.R`](./code/downloadData.R) and then run `downloadSevenDayChunks()` with the following three arguments:
 
-* **startdate_YYYYMMDD:** start date, in YYYYMMDD (e.g. 20120101)
-* **enddate_YYYYMMDD:** end date, in YYYYMMDD (e.g. 20170930)
+* **startdate_YYYYMMDD:** start date (e.g. 20120101)
+* **enddate_YYYYMMDD:** end date (e.g. 20170930)
 * **baseDir:** directory where you want the files saved
 
 You may want to try the startdate_YYYYMMDD and enddate_YYYYMMDD arguments in the `dateChecker()` function first if you hope to maintain files with no less than seven days of data.
 
 Monitor the size of each download as it completes. In a few cases for me the downloads inexplicably included the headers only; I used the `downloadTransactions()` function to re-retrieve these files after my first pass across the entire period.
 
+#### Data Consolidation
+
 I used [`combineCSVs.sh`](./code/combineCSVs.sh) to combine the raw 7-day transaction .csv files into a single large .csv file with a single header row. You will need to update the directory paths in rows 5 and 7 before you run this script.
 
-#### Blockface Data
+#### Data Cleaning
+
+I wrote a function in R to perform the Transaction data cleaning. This function can be found in [`cleanTransactions.R`](./code/cleanTransactions.R).
+
+This function performs the following basic steps:
+
+* Replaces bad values and brings consistency to `PaymentMean` column
+* Adds `TransactionDate`, `timeStart` and `timeExpired` columns based on values in `TransactionDateTime` and `PaidDuration` columns
+* Converts paid duration from minutes to seconds
+* Drops rows with `Amount` values > $25
+* Drops rows with `UserNumber` not equal to 1 or NA
+* Drops rows with negative or excessive durations (i.e. > 10 hours)
+* Drops columns that contain no (useful) data
+
+
+To use this code, source [`cleanTransactions.R`](./code/cleanTransactions.R) and then run `cleanTransactions()`, supplying the following arguments:
+
+* **baseDir:** directory where raw data lives
+* **filename_raw:** raw data file name
+* **filename_clean:** cleaned data file name (can use ../ to jump up a level)
+* **sample_n:** optional row count for random sample (I used 1000000 for the sample data)
+* **sample_seed:** optional seed for random sample (I used 228 for the sample data)
+
+The resulting data will have the following schema when saved to .csv:
+
+Column | Format | Description |
+|-----|------------|----|
+TransactionId | Int | The unique transaction identifier |
+TransactionDateTime | YYYY-MM-DD HH:MM:SS | The date and time of the transaction as recorded |
+TransactionDate | YYYY-MM-DD | The date of the transaction as recorded |
+timeStart | HH:MM:00 | The time of the transaction as recorded |
+timeExpired | HH:MM:00 | The calculated transaction expiration time |
+Duration_mins | Int | The calculated transaction duration (minutes) |
+Amount | Float | The amount of the transactions in dollars | 
+PaymentMean | String | Type of payment (e.g. COINS, CREDIT CARD, PHONE) |
+MeterCode | Int | Unique identifier of the pay station |
+ElementKey | Int | Unique identifier for the city street segment where the pay station is located |
+
+The final cleaned Transaction .csv file used in this analysis was 5.32 GB in size with 62,327,970 rows (excluding header).
+
+### Blockface Data
+
+#### Data Retrieval
 
 I manually downloaded the Blockface data since it only consisted of a single, small file. Click the link below to download:  
 http://web6.seattle.gov/SDOT/wapiParkingStudy/api/blockface
 
-### Data Cleaning
+#### Data Cleaning
 
-#### Transaction Data
+I wrote two function in R to perform the Blockface data cleaning. These functions can be found in [`cleanBlockface.R`](./code/cleanBlockface.R).
 
+This function performs the following basic steps:
 
-#### Blockface Data
+* Converts all times to HH:MM
+* Converts all dates to YYYY-MM-DD
+* Bumps end date/time columns up by one unit to simplify downstream join logic
+* Drops columns that contain no (useful) data
 
+To use this code, source [`cleanBlockface.R`](./code/cleanBlockface.R) and then run `cleanBlockface()`, supplying the following arguments:
 
+* **baseDir:** directory where raw data lives
+* **filename_raw:** raw data file name
+* **filename_clean:** cleaned data file name (can use ../ to jump up a level)
 
+The resulting data will have the following schema when saved to .csv:
 
+Column | Format | Description |
+|-----|------------|----|
+PayStationBlockfaceId | Int | System unique identifier |
+ElementKey | Int | Unique identifier for the city street segment (blockface) |
+ParkingSpaces | Int | Count of allowable parking spaces on the blockface |
+PaidParkingArea | String | Paid parking area of neighborhood |
+ParkingTimeLimitCategory | Int | Parking time limit category (minutes) |
+PeakHourStart1/2 | HH:MM:00 | Start time for peak hour parking restrictions (AM and PM) |
+PeakHourEnd1/2 | HH:MM:00 | End time for peak hour parking restrictions (AM and PM) |
+PaidAreaStartTime | HH:MM:00 | Paid parking area start time (used prior to variable parking rate) |
+PaidAreaEndTime | HH:MM:00 | Paid parking area end time (used prior to variable parking rate) |
+EffectiveStartDate | YYYY-MM-DD | Effective start date of the record |
+EffectiveEndDate | YYYY-MM-DD | Effective end date of the record |
+PaidParkingRate | Float | Paid parking rate on the block (used prior to variable parking rate) |
+ParkingCategory | String | Parking category |
+Load | Int | Count of spaces on the block allocated for various loading activities |
+Zone | Int | Count of spaces on the block allocated for short-term special use, such as passenger load, taxi, carshare, bus, etc... |
+WeekdayRate1/2/3 | Float | Weekday parking rate – 1st 2nd and 3rd intervals |
+WeekdayStart1/2/3 | HH:MM:00 | Weekday start time parking rate for the 1st 2nd and 3rd intervals |
+WeekdayEnd1/2/3 | HH:MM:00 | Weekday end time parking rate for the 1st 2nd and 3rd intervals |
+StartTimeWeekday | HH:MM:00 | Weekday Paid parking start time |
+EndTimeWeekday | HH:MM:00 | Weekday paid parking end time |
+SaturdayRate1/2/3 | Float | Saturday parking rate – 1st 2nd and 3rd intervals
+SaturdayStart1/2/3 | HH:MM:00 | Saturday start time parking rate for the 1st 2nd and 3rd intervals |
+SaturdayEnd1/2/3 | HH:MM:00 | Saturday end time parking rate for the 1st 2nd and 3rd intervals |
+StartTimeSaturday | HH:MM:00 | Saturday Paid parking start time |
+EndTimeSaturday | HH:MM:00 | Saturday Paid parking end time |
 
+The final cleaned Blockface .csv file used in this analysis was 2.7 MB in size with 13,706 rows (excluding header).
 
 ## References
 
@@ -136,89 +218,3 @@ http://gisrevprxy.seattle.gov/arcgis/rest/services/SDOT_EXT/DSG_datasharing/MapS
 https://data.seattle.gov/Transportation/Annual-Parking-Study-Data/7jzm-ucez  
 https://www.seattletimes.com/seattle-news/pay-parking-in-west-seattle/  
 http://escience.washington.edu/dssg/project-summaries-2017/
-
-
-
-
-
-
-
-
-
-It has the following schema:
-
-| Column | Datatype | Description |
-|-----|------------|----|
-|DataID	|Text |	System unique identifier|
-|MeterCode|	Text| 	Unique identifier of the pay station|
-|TransactionID| 	Text| 	The unique transaction identifier|
-|TransactionDateTime| 	Text| 	The date and time of the transaction as recorded|
-|Amount| 	Text 	|The amount of the transactions in dollars|
-|UserNumber| 	Text| 	Equals to 1; can be disregarded|
-|PaymentMean| 	Text| 	Type of payment (Coin, Credit, Phone)|
-|PaidDuration| 	Text| 	The total amount of time in seconds this payment represents. This field may include an extra 2 minute grace period or the prepayment hours before paid hours begin. Some older machines can only report time in 5 minute increments. (Number)|
-|ElementKey| 	Text| 	Unique identifier for the city street segment where the pay station is located|
-|Year| 	Text| 	The year of the transaction as recorded (derived from TransactionDateTime)|
-|Month| 	Text| 	The month of the transaction as recorded (derived from TransactionDateTime)|
-|Vendor| 	Text| 	NA - empty|
-
-
-
-
-
-It has the following schema:
-
-| Column | Datatype | Description |
-|-----|------------|----|
-|PayStationBlockfaceID|Text| 	System unique identifier|
-|Elementkey |Text|Unique identifier for the city street segment (blockface)|
-|ParkingSpaces|Text|Count of allowable parking spaces on the blockface|
-|PaidParkingArea|Text|Paid parking area of neighborhood|
-|ParkingTimeLimitCategory |Text|Parking time limit category|
-|PeakHourStart1|Text|Start time for the first interval of peak hour parking restriction|
-|PeakHourEnd1|Text|End time for the first interval of peak hour parking restriction|
-|PeakHourStart2|Text|Start time for the second interval of peak hour parking restriction|
-|PeakHourEnd2|Text|End time for the second interval of peak hour parking restriction|
-|PeakHourStart3|Text|Start time for the third interval of peak hour parking|
-|PeakHourEnd3|Text|End time for the third interval of peak hour parking restriction|
-|PaidAreaStartTime|Text|Paid parking area start time (used prior to variable parking rate)|
-|PaidAreaEndTime|Text|Paid parking area end time (used prior to variable parking rate)|
-|EffectiveStartDate|Text|Effective start date of the record|
-|EffectiveEndDate|Text|Effective end date of the record|
-|PaidParkingRate|Text|Paid parking rate on the block (used prior to variable parking rate)|
-|ParkingCategory|Text|Parking category|
-|Load|Text|Count of spaces on the block allocated for various loading activities|
-|Zone|Text|Count of spaces on the block allocated for short-term special use, such as passenger load, taxi, carshare, bus, etc...|
-|WeekdayRate1|Text|Weekday parking rate – 1st interval|
-|WeekdayStart1|Text|Weekday start time parking rate for the 1st interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|WeekdayEnd1|Text|Weekday end time parking rate for the 1st interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|WeekdayRate2|Text|Weekday parking rate – 2nd interval|
-|WeekdayStart2|Text|Weekday start time parking rate for the 2nd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|WeekdayEnd2|Text|Weekday end time parking rate for the 2nd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|WeekdayRate3|Text|Weekday parking rate – 3rd interval|
-|WeekdayStart3|Text|Weekday start time parking rate for the 3rd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|WeekdayEnd3|Text|Weekday end time parking rate for the 3rd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|StartTimeWeekday|Text|Weekday Paid parking start time|
-|EndTimeWeekday|Text|Weekday paid parking end time|
-|SaturdayRate1|Text|Saturday parking rate – 1st interval|
-|SaturdayStart1|Text|Saturday start time parking rate for the 1st interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SaturdayEnd1|Text|Saturday end time parking rate for the 1st interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SaturdayRate2|Text|Saturday parking rate – 2nd interval|
-|SaturdayStart2|Text|Saturday start time parking rate for the 2nd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SaturdayEnd2|Text|Saturday end time parking rate for the 2nd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SaturdayRate3|Text|Saturday parking rate – 3rd interval|
-|SaturdayStart3|Text|Saturday start time parking rate for the 3rd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SaturdayEnd3|Text|Saturday end time parking rate for the 3rd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|StartTimeSaturday|Text|Saturday Paid parking start time|
-|EndTimeSaturday|Text|Saturday paid parking end time|
-|SundayRate1|Text|Sunday parking rate – 1st interval|
-|SundayStart1|Text|Sunday start time parking rate for the 1st interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SundayEnd1|Text|Sunday end time parking rate for the 1st interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SundayRate2 |Text|Sunday parking rate – 2nd interval|
-|SundayStart2|Text|Sunday start time parking rate for the 2nd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SundayEnd2|Text|Sunday end time parking rate for the 2nd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SundayRate3|Text|Sunday parking rate – 3rd interval|
-|SundayStart3|Text|Sunday start time parking rate for the 3rd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|SundayEnd3|Text|Sunday end time parking rate for the 3rd interval. Time is in minutes after midnight(i.e., 600 = 10:00AM)|
-|StartTimeSunday|Text|Sunday Paid parking start time|
-|EndTimeSunday|Text|Sunday paid parking end time|
