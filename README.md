@@ -12,7 +12,7 @@ This work is intended to be fully reproducible. This means that any user should 
 
 `git clone https://github.com/rexthompson/DATA-512-Final-Project`
 
-This will download all the code and most of the cleanded data needed for this analysis.
+This will download all the code and most of the cleaned data needed for this analysis.
 
 However, note that one of the two source data files is 5.32 GB in size and is therefore much too large to include within this repository (GitHub limits individual files to 100 MB and repositories to 1 GB). I have included a random sample of 1,000,000 rows from this dataset in this repository; it is used by default in the code (though note that the results displayed are from running the code on the full dataset).
 
