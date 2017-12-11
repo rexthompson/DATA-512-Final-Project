@@ -1,10 +1,6 @@
-#######################
-#### DOWNLOAD DATA ####
-#######################
-
 downloadTransactions <- function(startdate_YYYYMMDD=NULL,
                                  enddate_YYYYMMDD=NULL,
-                                 baseDir="/Users/Thompson/Desktop/3 - DATA 512/Final Project/data/raw/transactions_by_week/") {
+                                 baseDir="/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/") {
   
   # set different date formats
   startdate <- lubridate::ymd(startdate_YYYYMMDD)
@@ -38,7 +34,7 @@ downloadTransactions <- function(startdate_YYYYMMDD=NULL,
 
 downloadSevenDayChunks <- function(startdate_YYYYMMDD=NULL,
                                    enddate_YYYYMMDD=NULL,
-                                   baseDir="/Users/Thompson/Desktop/3 - DATA 512/Final Project/data/raw/transactions_by_week/") {
+                                   baseDir="/Users/Thompson/Desktop/3 - DATA 512/Assignments/A6 - Final Project/data/raw/transactions_by_week/") {
   
   # initial sanity check
   assertthat::assert_that(enddate_YYYYMMDD >= startdate_YYYYMMDD)
@@ -56,7 +52,6 @@ downloadSevenDayChunks <- function(startdate_YYYYMMDD=NULL,
   # combine into a single dataframe and reformat back to YYYYMMDD
   date_ranges <- data.frame(startdate=startdate_seq, enddate=enddate_seq)
   date_ranges <- format(date_ranges,"%Y%m%d")
-
   for (i in 1:nrow(date_ranges)) {
     downloadTransactions(date_ranges[i,1], date_ranges[i,2], baseDir)
   }
@@ -89,7 +84,6 @@ dateChecker <- function(startdate_YYYYMMDD=NULL,
   evenOffset <- offset%%interval == 0
   
   if (evenOffset) {
-    # pass
     message("OK")
   } else {
     option1 <- ifelse(n>1, paste0(date_ranges[n-1,2], " or "), "")

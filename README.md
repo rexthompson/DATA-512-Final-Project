@@ -74,11 +74,13 @@ http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattleP
 
 ## Data Retrieval and Cleaning
 
-Data retrieval and cleaning are important parts of any project; however, I kept these steps out of the Jupyter Notebook so as to not clutter the analysis. Instead, you will find the code for these steps in this repository's [/code](/code) directory.
+Data retrieval and cleaning are important parts of any project; however, I kept these steps out of the Jupyter Notebook so as to not clutter the analysis. Instead, you will find the code for these steps in this repository's [code/](/code) directory.
 
 The following includes details on these steps and instructions on how to use the data retrieval and cleaning steps if you wish to reproduce or extend my analysis.
 
 ### Data Retrieval
+
+#### Transaction Data
 
 At the time of this project the Transaction data API limited requests to no more than seven days at a time. Thus, I wrote a few functions in R to automate the process of downloading the Transaction data in seven-day chunks over the period of interest.
 
@@ -88,7 +90,22 @@ The following three functions are included in [`downloadData.R`](./code/download
 * `downloadSevenDayChunks()`: Wrapper function around `downloadTransactions()` which automatically downloads data in seven-day chunks over a larger given date range
 * `dateChecker()`: Checks whether a given date interval splits evenly into seven-day chunks. This is useful when trying to figure out dates to feed to `downloadSevenDayChunks()` to minimize the number of files needed to store the data.
 
-I manually downloaded the Blockface data since it only consisted of a single, small file.
+To use this code, source [`downloadData.R`](./code/downloadData.R) and then run `downloadSevenDayChunks()` with the following three arguments:
+
+* **startdate_YYYYMMDD:** start date, in YYYYMMDD (e.g. 20120101)
+* **enddate_YYYYMMDD:** end date, in YYYYMMDD (e.g. 20170930)
+* **baseDir:** directory where you want the files saved
+
+You may want to try the startdate_YYYYMMDD and enddate_YYYYMMDD arguments in the `dateChecker()` function first if you hope to maintain files with no less than seven days of data.
+
+Monitor the size of each download as it completes. In a few cases for me the downloads inexplicably included the headers only; I used the `downloadTransactions()` function to re-retrieve these files after my first pass across the entire period.
+
+I used [`combineCSVs.sh`](./code/combineCSVs.sh) to combine the raw 7-day transaction .csv files into a single large .csv file with a single header row. You will need to update the directory paths in rows 5 and 7 before you run this script.
+
+#### Blockface Data
+
+I manually downloaded the Blockface data since it only consisted of a single, small file. Click the link below to download:  
+http://web6.seattle.gov/SDOT/wapiParkingStudy/api/blockface
 
 ### Data Cleaning
 
