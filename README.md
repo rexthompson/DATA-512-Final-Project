@@ -56,9 +56,9 @@ Specifics of both datasets are discussed below.
 
 The Transaction data represents payments at parking pay stations and the City’s mobile payment vendor for paid on-street parking within Seattle city limits. Records begin in January 2012.
 
-The combined raw Transaction data is 5.21 GB in size with 62,577,106 rows and 12 columns.
+The combined raw Transaction data is 5.21 GB in size with 62,577,106 rows (excluding header) and 12 columns.
 
-More information about the Transaction dataset (including its schema) can be found here:  
+More information about the raw Transaction dataset (including its schema) can be found here:  
 http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidTransactMetadata.pdf  
 (This document is also archived [here](./data/documentation/SeattlePaidTransactMetadata.pdf))
 
@@ -66,9 +66,9 @@ http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattleP
 
 The Blockface data provides context to the Transaction data, including records such as street parking capacity, no-parking times, and parking rates by date/time. It can be tied to the Transaction data by the ElementKey and date (since Blockface information may change over time). Most records begin in 2012 but some blockfaces include records as early as 1969.
 
-The raw Blockface data consists of a single .csv file 3.6 MB in size, with 13,706 rows of data and 52 columns.
+The raw Blockface data consists of a single .csv file 3.6 MB in size, with 13,706 rows (excluding header) and 52 columns.
 
-More information about the Blockface dataset (including its schema) can be found here:  
+More information about the raw Blockface dataset (including its schema) can be found here:  
 http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattlePaidBlockfaceMetadata.pdf  
 (This document is also archived [here](./data/documentation/SeattlePaidBlockfaceMetadata.pdf))
 
@@ -76,19 +76,17 @@ http://wwwqa.seattle.gov/Documents/Departments/SDOT/ParkingProgram/data/SeattleP
 
 Data retrieval and cleaning are important parts of any project; however, I kept these steps out of the Jupyter Notebook so as to not clutter the analysis. Instead, you will find the code for these steps in this repository's [code/](/code) directory.
 
-The following includes details on these steps and instructions on how to use the data retrieval and cleaning steps if you wish to reproduce or extend my analysis.
+The following includes details on these steps and instructions on how to use the data retrieval and cleaning code if you wish to reproduce or extend my analysis.
 
 
 ### Transaction Data
 
 #### Data Retrieval
 
-At the time of this project the Transaction data API limited requests to no more than seven days at a time. Thus, I wrote a few functions in R to automate the process of downloading the Transaction data in seven-day chunks over the period of interest.
-
-The following three functions are included in [`downloadData.R`](./code/downloadData.R):
+At the time of this project the Transaction data API limited requests to no more than seven days at a time. Thus, I wrote three functions in R to automate the process of downloading the Transaction data in seven-day chunks over the period of interest:
 
 * `downloadTransactions()`: Base-level function which retrieves data from the Transaction data API for a given date range (up to seven days in duration)
-* `downloadSevenDayChunks()`: Wrapper function around `downloadTransactions()` which automatically downloads data in seven-day chunks over a larger given date range
+* `downloadSevenDayChunks()`: Wrapper function around `downloadTransactions()` which automatically downloads data in seven-day chunks over a given date range
 * `dateChecker()`: Checks whether a given date interval splits evenly into seven-day chunks. This is useful when trying to figure out dates to feed to `downloadSevenDayChunks()` to minimize the number of files needed to store the data.
 
 To use this code, source [`downloadData.R`](./code/downloadData.R) and then run `downloadSevenDayChunks()` with the following three arguments:
@@ -99,17 +97,15 @@ To use this code, source [`downloadData.R`](./code/downloadData.R) and then run 
 
 You may want to try the startdate_YYYYMMDD and enddate_YYYYMMDD arguments in the `dateChecker()` function first if you hope to maintain files with no less than seven days of data.
 
-Monitor the size of each download as it completes. In a few cases for me the downloads inexplicably included the headers only; I used the `downloadTransactions()` function to re-retrieve these files after my first pass across the entire period.
+Monitor the size of each download as it completes. In a few cases for me the downloads inexplicably included the header row only; I used the `downloadTransactions()` function to re-retrieve these files after my first pass across the entire period. They worked on the second attempt.
 
 #### Data Consolidation
 
-I used [`combineCSVs.sh`](./code/combineCSVs.sh) to combine the raw 7-day transaction .csv files into a single large .csv file with a single header row. You will need to update the directory paths in rows 5 and 7 before you run this script.
+I used [`combineCSVs.sh`](./code/combineCSVs.sh) to combine the raw 7-day Transaction .csv files into a single large .csv file with a single header row. Note that you may need to update the file paths in rows 5 and 7 before you run this script.
 
 #### Data Cleaning
 
-I wrote a function in R to perform the Transaction data cleaning. This function can be found in [`cleanTransactions.R`](./code/cleanTransactions.R).
-
-This function performs the following basic steps:
+I wrote a function in R which performs following basic data cleaning steps on the Transaction data:
 
 * Replaces bad values and brings consistency to `PaymentMean` column
 * Adds `TransactionDate`, `timeStart` and `timeExpired` columns based on values in `TransactionDateTime` and `PaidDuration` columns
@@ -119,7 +115,6 @@ This function performs the following basic steps:
 * Drops rows with negative or excessive durations (i.e. > 10 hours)
 * Drops columns that contain no (useful) data
 
-
 To use this code, source [`cleanTransactions.R`](./code/cleanTransactions.R) and then run `cleanTransactions()`, supplying the following arguments:
 
 * **baseDir:** directory where raw data lives
@@ -128,7 +123,7 @@ To use this code, source [`cleanTransactions.R`](./code/cleanTransactions.R) and
 * **sample_n:** optional row count for random sample (I used 1000000 for the sample data)
 * **sample_seed:** optional seed for random sample (I used 228 for the sample data)
 
-The resulting data will have the following schema when saved to .csv:
+The resulting cleaned .csv file will have the following schema:
 
 Column | Format | Description |
 |-----|------------|----|
@@ -154,9 +149,7 @@ http://web6.seattle.gov/SDOT/wapiParkingStudy/api/blockface
 
 #### Data Cleaning
 
-I wrote two function in R to perform the Blockface data cleaning. These functions can be found in [`cleanBlockface.R`](./code/cleanBlockface.R).
-
-This function performs the following basic steps:
+I wrote a function in R which performs following basic data cleaning steps on the Blockface data:
 
 * Converts all times to HH:MM
 * Converts all dates to YYYY-MM-DD
@@ -169,7 +162,7 @@ To use this code, source [`cleanBlockface.R`](./code/cleanBlockface.R) and then 
 * **filename_raw:** raw data file name
 * **filename_clean:** cleaned data file name (can use ../ to jump up a level)
 
-The resulting data will have the following schema when saved to .csv:
+The resulting cleaned .csv file will have the following schema:
 
 Column | Format | Description |
 |-----|------------|----|
