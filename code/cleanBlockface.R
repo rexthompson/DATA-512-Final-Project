@@ -1,3 +1,4 @@
+# load dependencies
 library(lubridate)
 library(readr)
 
@@ -32,64 +33,62 @@ cleanBlockface <- function(baseDir, filename_raw, filename_clean) {
   #### DATA IMPORT ####
   
   # define schema and column types
-  col_types_blkfc <- readr::cols(PayStationBlockfaceId = col_integer(),
-                                 ElementKey = col_integer(),
-                                 ParkingSpaces = col_integer(),
-                                 PaidParkingArea = col_character(),
-                                 ParkingTimeLimitCategory = col_integer(),
-                                 PeakHourStart1 = col_character(), # col_time("%H:%M:%S")
-                                 PeakHourEnd1 = col_character(), # col_time("%H:%M:%S")
-                                 PeakHourStart2 = col_character(), # col_time("%H:%M:%S")
-                                 PeakHourEnd2 = col_character(), # col_time("%H:%M:%S")
-                                 PeakHourStart3 = col_character(), # col_time("%H:%M:%S")
-                                 PeakHourEnd3 = col_character(), # col_time("%H:%M:%S")
-                                 PaidAreaStartTime = col_time("%H%p"),
-                                 PaidAreaEndTime = col_time("%H%p"),
-                                 EffectiveStartDate = col_date("%e-%b-%y"),
-                                 EffectiveEndDate = col_date("%e-%b-%y"),
-                                 PaidParkingRate = col_double(),
-                                 ParkingCategory = col_character(),
-                                 Load = col_integer(),
-                                 Zone = col_integer(),
-                                 WeekdayRate1 = col_double(),
-                                 WeekdayStart1 = col_integer(), # convert from mins after midnight to time
-                                 WeekdayEnd1 = col_integer(), # convert from mins after midnight to time
-                                 WeekdayRate2 = col_double(),
-                                 WeekdayStart2 = col_integer(), # convert from mins after midnight to time
-                                 WeekdayEnd2 = col_integer(), # convert from mins after midnight to time
-                                 WeekdayRate3 = col_double(),
-                                 WeekdayStart3 = col_integer(), # convert from mins after midnight to time
-                                 WeekdayEnd3 = col_integer(), # convert from mins after midnight to time
-                                 StartTimeWeekday = col_time("%H%p"),
-                                 EndTimeWeekday = col_time("%H%p"),
-                                 SaturdayRate1 = col_double(),
-                                 SaturdayStart1 = col_integer(), # convert from mins after midnight to time
-                                 SaturdayEnd1 = col_integer(),  # convert from mins after midnight to time
-                                 SaturdayRate2 = col_double(),
-                                 SaturdayStart2 = col_integer(),  # convert from mins after midnight to time
-                                 SaturdayEnd2 = col_integer(),  # convert from mins after midnight to time
-                                 SaturdayRate3 = col_double(),
-                                 SaturdayStart3 = col_integer(),  # convert from mins after midnight to time
-                                 SaturdayEnd3 = col_integer(),  # convert from mins after midnight to time
-                                 StartTimeSaturday = col_time("%H%p"),
-                                 EndTimeSaturday = col_time("%H%p"),
-                                 SundayRate1 = col_double(), # none; for consistency only
-                                 SundayStart1 = col_integer(), # none; for consistency only
-                                 SundayEnd1 = col_integer(), # none; for consistency only
-                                 SundayRate2 = col_double(), # none; for consistency only
-                                 SundayStart2 = col_integer(), # none; for consistency only
-                                 SundayEnd2 = col_integer(), # none; for consistency only
-                                 SundayRate3 = col_double(), # none; for consistency only
-                                 SundayStart3 = col_integer(), # none; for consistency only
-                                 SundayEnd3 = col_integer(), # none; for consistency only
-                                 StartTimeSunday = col_character(), # col_time("%H%p"), # none, for consistency only
-                                 EndTimeSunday = col_time("%H%p")) # none, for consistency only
+  col_types <- readr::cols(PayStationBlockfaceId = col_integer(),
+                           ElementKey = col_integer(),
+                           ParkingSpaces = col_integer(),
+                           PaidParkingArea = col_character(),
+                           ParkingTimeLimitCategory = col_integer(),
+                           PeakHourStart1 = col_character(), # col_time("%H:%M:%S")
+                           PeakHourEnd1 = col_character(), # col_time("%H:%M:%S")
+                           PeakHourStart2 = col_character(), # col_time("%H:%M:%S")
+                           PeakHourEnd2 = col_character(), # col_time("%H:%M:%S")
+                           PeakHourStart3 = col_character(), # col_time("%H:%M:%S")
+                           PeakHourEnd3 = col_character(), # col_time("%H:%M:%S")
+                           PaidAreaStartTime = col_time("%H%p"),
+                           PaidAreaEndTime = col_time("%H%p"),
+                           EffectiveStartDate = col_date("%e-%b-%y"),
+                           EffectiveEndDate = col_date("%e-%b-%y"),
+                           PaidParkingRate = col_double(),
+                           ParkingCategory = col_character(),
+                           Load = col_integer(),
+                           Zone = col_integer(),
+                           WeekdayRate1 = col_double(),
+                           WeekdayStart1 = col_integer(), # convert from mins after midnight to time
+                           WeekdayEnd1 = col_integer(), # convert from mins after midnight to time
+                           WeekdayRate2 = col_double(),
+                           WeekdayStart2 = col_integer(), # convert from mins after midnight to time
+                           WeekdayEnd2 = col_integer(), # convert from mins after midnight to time
+                           WeekdayRate3 = col_double(),
+                           WeekdayStart3 = col_integer(), # convert from mins after midnight to time
+                           WeekdayEnd3 = col_integer(), # convert from mins after midnight to time
+                           StartTimeWeekday = col_time("%H%p"),
+                           EndTimeWeekday = col_time("%H%p"),
+                           SaturdayRate1 = col_double(),
+                           SaturdayStart1 = col_integer(), # convert from mins after midnight to time
+                           SaturdayEnd1 = col_integer(),  # convert from mins after midnight to time
+                           SaturdayRate2 = col_double(),
+                           SaturdayStart2 = col_integer(),  # convert from mins after midnight to time
+                           SaturdayEnd2 = col_integer(),  # convert from mins after midnight to time
+                           SaturdayRate3 = col_double(),
+                           SaturdayStart3 = col_integer(),  # convert from mins after midnight to time
+                           SaturdayEnd3 = col_integer(),  # convert from mins after midnight to time
+                           StartTimeSaturday = col_time("%H%p"),
+                           EndTimeSaturday = col_time("%H%p"),
+                           SundayRate1 = col_double(), # none; for consistency only
+                           SundayStart1 = col_integer(), # none; for consistency only
+                           SundayEnd1 = col_integer(), # none; for consistency only
+                           SundayRate2 = col_double(), # none; for consistency only
+                           SundayStart2 = col_integer(), # none; for consistency only
+                           SundayEnd2 = col_integer(), # none; for consistency only
+                           SundayRate3 = col_double(), # none; for consistency only
+                           SundayStart3 = col_integer(), # none; for consistency only
+                           SundayEnd3 = col_integer(), # none; for consistency only
+                           StartTimeSunday = col_character(), # col_time("%H%p"), # none, for consistency only
+                           EndTimeSunday = col_time("%H%p")) # none, for consistency only
   
   # import blockface data
   filepath_raw <- paste0(baseDir, filename_raw)
-  blockface <- readr::read_csv(filepath_raw,
-                               col_types = col_types_blkfc,
-                               na="NULL")
+  blockface <- readr::read_csv(filepath_raw, col_types = col_types, na="NULL")
   
   #### DATA CLEANING ####
   
