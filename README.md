@@ -6,6 +6,8 @@ I analyze Seattle paid on-street parking data from January 2012 through Septembe
 
 Refer to [DATA-512-Final-Project.ipynb](./DATA-512-Final-Project.ipynb) for the full analysis and supporting code, as well as a discussion on the limitations of this analysis.
 
+This work was performed for the Final Project in DATA 512 (Human-Centered Data Science), University of Washington, Fall 2017.
+
 ## Reproducibility
 
 This work is intended to be fully reproducible. This means that any user should be able to run my code and produce the exact same result as presented here. To do so, simply clone this repository by typing the following in the command line:
